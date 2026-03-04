@@ -14,7 +14,7 @@ interface LandingPageProps {
   t: Translations;
 }
 
-export function LandingPage({ onPageChange, t }: LandingPageProps) {
+function LandingPage({ onPageChange, t }: LandingPageProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hasAnimated, setHasAnimated] = useState(false);

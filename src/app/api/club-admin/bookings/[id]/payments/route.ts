@@ -14,9 +14,11 @@ export async function POST(
 ) {
   try {
     // Require approved user
-    const user = await requireApprovedUser().catch(() => {
+    const userOrError = await requireApprovedUser().catch(() => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     });
+    if (userOrError instanceof NextResponse) return userOrError;
+    const user = userOrError;
 
     // Verify user is club admin
     const locationId = await getClubAdminLocationId();
@@ -103,7 +105,7 @@ export async function POST(
 
     // Calculate current total paid
     const currentTotalPaid = booking.bookingPayments.reduce(
-      (sum, payment) => sum + payment.amount,
+      (sum: number, payment: { amount: number }) => sum + payment.amount,
       0
     );
 

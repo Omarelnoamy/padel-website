@@ -14,7 +14,7 @@ import { checkFixedBookingOverlap } from "@/lib/fixed-bookings";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await getServerSession(authOptions as any)) as {
@@ -25,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const fixedBooking = await prisma.fixedBooking.findUnique({
       where: { id },
@@ -85,7 +85,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await getServerSession(authOptions as any)) as {
@@ -96,7 +96,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get existing fixed booking
     const existing = await prisma.fixedBooking.findUnique({
@@ -365,7 +365,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await getServerSession(authOptions as any)) as {
@@ -376,7 +376,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get existing fixed booking
     const existing = await prisma.fixedBooking.findUnique({

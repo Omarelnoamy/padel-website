@@ -124,7 +124,7 @@ const groupColors = [
   { id: "H", name: "Group H", color: "from-teal-500 to-teal-700" },
 ];
 
-export function TournamentManagement({
+function TournamentManagement({
   t,
   onPageChange,
   tournamentId,

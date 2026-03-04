@@ -183,11 +183,11 @@ export async function POST(
             source: "booking",
             amount: -booking.totalPrice, // Negative amount
             transactionDate: bookingDate,
-            description: {
-              contains: "Booking cancellation",
-              contains: booking.startTime,
-              contains: booking.endTime,
-            },
+            AND: [
+              { description: { contains: "Booking cancellation" } },
+              { description: { contains: booking.startTime } },
+              { description: { contains: booking.endTime } },
+            ],
           },
         });
 

@@ -12,11 +12,6 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { encode } from "next-auth/jwt";
 
-// Only allow in development
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Test auth endpoint not available in production");
-}
-
 export async function POST(request: NextRequest) {
   try {
     // Double-check we're in development
@@ -74,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Create session cookie
     const cookieName =
-      process.env.NODE_ENV === "production"
+      (process.env.NODE_ENV as string) === "production"
         ? "__Secure-next-auth.session-token"
         : "next-auth.session-token";
 
@@ -93,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Set the session cookie
     response.cookies.set(cookieName, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: (process.env.NODE_ENV as string) === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: "/",

@@ -46,10 +46,11 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.adminType = (user as any).adminType;
-        token.userType = (user as any).userType;
-        token.isApproved = (user as any).isApproved;
+        const typedUser = user as any;
+        token.role = typedUser.role;
+        token.adminType = typedUser.adminType;
+        token.userType = typedUser.userType;
+        token.isApproved = typedUser.isApproved;
       }
       return token;
     },

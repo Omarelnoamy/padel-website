@@ -112,7 +112,7 @@ const getCategory = (
   return "Juniors";
 };
 
-export function PointSystem({ t }: PointSystemProps) {
+function PointSystem({ t }: PointSystemProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"rank" | "points" | "name">("rank");

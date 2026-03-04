@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-config";
 import { prisma } from "@/lib/prisma";
+import type { Location, Court } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -224,7 +225,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify location exists (only if using website location)
-    let location = null;
+    let location: (Location & { courts: Court[] }) | null = null;
     if (locationId) {
       location = await prisma.location.findUnique({
         where: { id: locationId },
@@ -238,9 +239,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Verify all courts belong to the location
+      // Verify all courts belong to the location (location is non-null after check above)
       const invalidCourts = courtIds.filter(
-        (courtId: string) => !location.courts.some((c) => c.id === courtId)
+        (courtId: string) => !location!.courts.some((c) => c.id === courtId)
       );
 
       if (invalidCourts.length > 0) {

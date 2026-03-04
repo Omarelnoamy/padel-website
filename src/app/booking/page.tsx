@@ -81,7 +81,7 @@ function toLocalDateString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function BookingPage({ t }: BookingPageProps) {
+function BookingPage({ t }: BookingPageProps) {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   );

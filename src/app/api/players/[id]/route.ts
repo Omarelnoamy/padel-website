@@ -12,8 +12,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const player = await prisma.player.findUnique({
-      where: { id: const { id } = await params; id },
+      where: { id },
       include: {
         user: {
           select: {
@@ -49,6 +50,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = (await getServerSession(authOptions as any)) as {
       user?: { id?: string; role?: string; adminType?: string };
     } | null;
@@ -76,7 +78,7 @@ export async function PATCH(
 
     // Check if player exists
     const existingPlayer = await prisma.player.findUnique({
-      where: { id: const { id } = await params; id },
+      where: { id },
     });
 
     if (!existingPlayer) {
@@ -120,7 +122,7 @@ export async function PATCH(
     if (updateData.points !== undefined) {
       // Update player first
       const updatedPlayer = await prisma.player.update({
-        where: { id: const { id } = await params; id },
+        where: { id },
         data: updateData,
       });
 
@@ -129,7 +131,7 @@ export async function PATCH(
 
       // Fetch updated player with new rank
       const playerWithNewRank = await prisma.player.findUnique({
-        where: { id: const { id } = await params; id },
+        where: { id },
         include: {
           user: {
             select: {
@@ -145,7 +147,7 @@ export async function PATCH(
     } else {
       // No points change, just update
       const updatedPlayer = await prisma.player.update({
-        where: { id: const { id } = await params; id },
+        where: { id },
         data: updateData,
         include: {
           user: {
@@ -185,6 +187,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = (await getServerSession(authOptions as any)) as {
       user?: { id?: string; role?: string; adminType?: string };
     } | null;
@@ -206,7 +209,7 @@ export async function DELETE(
     }
 
     const player = await prisma.player.findUnique({
-      where: { id: const { id } = await params; id },
+      where: { id },
     });
 
     if (!player) {
@@ -215,7 +218,7 @@ export async function DELETE(
 
     // Delete player
     await prisma.player.delete({
-      where: { id: const { id } = await params; id },
+      where: { id },
     });
 
     // Recalculate ranks after deletion
@@ -239,7 +242,7 @@ async function recalculateRanks() {
   const players = await prisma.player.findMany({
     orderBy: [
       { points: "desc" },
-      { createdAt: "asc" }, // Tiebreaker: older players rank higher
+      { id: "asc" }, // Tiebreaker: deterministic order
     ],
   });
 

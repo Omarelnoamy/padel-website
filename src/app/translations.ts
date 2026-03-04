@@ -149,7 +149,7 @@ export const translations: Record<"en" | "ar", Translations> = {
 
     // Landing Page
     heroTitle: "Book Your Padel Court",
-
+    heroSubtitle: "StarPoint Padel Club - Port Said",
     heroDescription:
       "Experience the ultimate padel experience with professional courts, expert coaching, and exciting tournaments",
     bookCoach: "Book Coach",
@@ -302,7 +302,7 @@ export const translations: Record<"en" | "ar", Translations> = {
 
     // Landing Page
     heroTitle: "احجز ملعب البادل ",
-
+    heroSubtitle: "نادي ستاربوينت بادل - بورسعيد",
     heroDescription:
       "استمتع بتجربة البادل المثالية مع ملاعب احترافية وتدريب خبير وبطولات مثيرة",
     bookCoach: "حجز مدرب",

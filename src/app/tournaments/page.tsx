@@ -24,7 +24,7 @@ interface TournamentsPageProps {
   onPageChange: (page: string) => void;
 }
 
-export function TournamentsPage({ t, onPageChange }: TournamentsPageProps) {
+function TournamentsPage({ t, onPageChange }: TournamentsPageProps) {
   const tournaments: any[] = [];
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [particles, setParticles] = useState<Array<{ left: string; top: string; delay: number; duration: number }>>([]);
