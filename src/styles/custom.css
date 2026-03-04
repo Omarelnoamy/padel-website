@@ -1,0 +1,1194 @@
+/* ============================================
+   Hero Section - Premium Dark Grey Theme
+   Luxury, minimal, Dribbble-level
+   ============================================ */
+
+/* A. Hero fade-in: opacity 0→1, translateY 20px→0, 0.8s ease-out */
+.hero-background {
+  background: radial-gradient(circle at center, #2b2b2b 0%, #121212 100%);
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hero-background.hero-load-in {
+  animation: heroLoadFadeUp 0.8s ease-out forwards;
+}
+
+@keyframes heroLoadFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Floating gradient orbs (replaces grid) – cooler ambient animation */
+.hero-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+.hero-background.hero-load-in .hero-orb {
+  animation: heroOrbFloat 18s ease-in-out infinite;
+}
+
+.hero-orb-1 {
+  width: min(70vw, 480px);
+  height: min(70vw, 480px);
+  left: -10%;
+  top: 10%;
+  background: radial-gradient(
+    circle,
+    rgba(249, 217, 35, 0.25) 0%,
+    rgba(212, 168, 23, 0.08) 50%,
+    transparent 70%
+  );
+  animation-delay: 0s;
+}
+
+.hero-orb-2 {
+  width: min(50vw, 320px);
+  height: min(50vw, 320px);
+  right: -5%;
+  bottom: 15%;
+  background: radial-gradient(
+    circle,
+    rgba(249, 217, 35, 0.2) 0%,
+    rgba(212, 168, 23, 0.06) 50%,
+    transparent 70%
+  );
+  animation-delay: -6s;
+}
+
+.hero-orb-3 {
+  width: min(40vw, 260px);
+  height: min(40vw, 260px);
+  left: 30%;
+  bottom: 25%;
+  background: radial-gradient(
+    circle,
+    rgba(249, 217, 35, 0.18) 0%,
+    transparent 60%
+  );
+  animation-delay: -12s;
+}
+
+.hero-orb-4 {
+  width: min(45vw, 300px);
+  height: min(45vw, 300px);
+  right: 25%;
+  top: 30%;
+  background: radial-gradient(
+    circle,
+    rgba(212, 168, 23, 0.15) 0%,
+    transparent 65%
+  );
+  animation-delay: -3s;
+}
+
+@keyframes heroOrbFloat {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(4%, -3%) scale(1.05);
+  }
+  50% {
+    transform: translate(-3%, 2%) scale(0.98);
+  }
+  75% {
+    transform: translate(2%, 4%) scale(1.02);
+  }
+}
+
+/* Vignette edges */
+.hero-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 120% 100% at 50% 50%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.25) 85%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top fade for text readability */
+.hero-background .hero-top-fade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 18, 18, 0.9) 0%,
+    rgba(18, 18, 18, 0.35) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle noise texture overlay */
+.hero-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* C. Accent line sweep: left→right on load, 1.2s */
+.court-line-accent {
+  position: absolute;
+  bottom: 20%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #f9d923;
+  box-shadow: 0 0 15px rgba(249, 217, 35, 0.6);
+  pointer-events: none;
+  z-index: 1;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.hero-background.hero-load-in .court-line-accent {
+  animation: accentSweep 1.2s ease-out 0.4s forwards;
+}
+
+@keyframes accentSweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Radial spotlight behind headline */
+.hero-spotlight {
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  width: 80%;
+  max-width: 600px;
+  height: 120%;
+  transform: translate(-20%, -50%);
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(249, 217, 35, 0.08) 0%,
+    rgba(249, 217, 35, 0.02) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero section inner - content above all layers */
+.hero-background .hero-section-inner {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Mobile: don't force full-height centering – content starts near top, better distribution */
+@media (max-width: 767px) {
+  .hero-background .hero-section-inner {
+    min-height: 0;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Hero typography – one place for all views (modern, user-friendly scale) */
+.hero-background .hero-section-inner h1.hero-title {
+  font-size: clamp(
+    1.75rem,
+    5vw + 1rem,
+    4rem
+  ); /* ~28px mobile → ~64px desktop */
+}
+
+/* Mobile: title bigger, two lines ("Book Your" / "Padel Court"), left-aligned */
+@media (max-width: 767px) {
+  .hero-background
+    .hero-section-inner
+    h1.hero-title.hero-title-mobile-two-lines {
+    font-size: clamp(
+      2.25rem,
+      8vw + 1.25rem,
+      3.5rem
+    ) !important; /* bigger on mobile */
+  }
+  .hero-background
+    .hero-section-inner
+    h1.hero-title.hero-title-mobile-two-lines
+    .hero-title-line1,
+  .hero-background
+    .hero-section-inner
+    h1.hero-title.hero-title-mobile-two-lines
+    .hero-title-line2 {
+    display: block;
+  }
+}
+/* Tablet/desktop: title on one line */
+@media (min-width: 768px) {
+  .hero-background .hero-section-inner h1.hero-title .hero-title-line1,
+  .hero-background .hero-section-inner h1.hero-title .hero-title-line2 {
+    display: inline;
+  }
+}
+@media (min-width: 640px) {
+  .hero-background .hero-section-inner h1.hero-title {
+    font-size: clamp(2rem, 4vw + 1.5rem, 3.5rem);
+  }
+}
+@media (min-width: 768px) {
+  .hero-background .hero-section-inner h1.hero-title {
+    font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-background .hero-section-inner h1.hero-title {
+    font-size: clamp(3.5rem, 4vw + 2rem, 5rem) !important;
+  }
+}
+@media (min-width: 1280px) {
+  .hero-background .hero-section-inner h1.hero-title {
+    font-size: clamp(4rem, 3vw + 2.5rem, 5.5rem) !important;
+  }
+}
+
+/* Hero description – readable at every viewport */
+.hero-background .hero-section-inner .hero-description {
+  font-size: clamp(1rem, 2vw + 0.75rem, 1.5rem);
+  line-height: 1.6;
+}
+@media (min-width: 640px) {
+  .hero-background .hero-section-inner .hero-description {
+    font-size: clamp(1.125rem, 1.5vw + 0.875rem, 1.5rem);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-background .hero-section-inner .hero-description {
+    font-size: clamp(1.25rem, 1vw + 1rem, 1.75rem);
+    line-height: 1.65;
+  }
+}
+@media (min-width: 1280px) {
+  .hero-background .hero-section-inner .hero-description {
+    font-size: clamp(1.375rem, 0.5vw + 1.25rem, 2rem);
+  }
+}
+
+/* Hero subtitle (tagline under title) */
+.hero-background .hero-section-inner .hero-subtitle {
+  font-size: clamp(1.125rem, 2vw + 0.5rem, 2rem);
+}
+@media (min-width: 768px) {
+  .hero-background .hero-section-inner .hero-subtitle {
+    font-size: clamp(1.5rem, 2vw + 0.75rem, 2.5rem);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-background .hero-section-inner .hero-subtitle {
+    font-size: clamp(1.75rem, 1.5vw + 1rem, 3rem);
+  }
+}
+
+/* D. Button hover: scale 1.05, soft yellow glow, 0.3s */
+.hero-cta-primary {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta-primary:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 28px rgba(249, 217, 35, 0.5),
+      0 0 50px rgba(249, 217, 35, 0.2);
+  }
+  .hero-cta-primary:active {
+    transform: scale(1.02);
+  }
+}
+
+.hero-cta-secondary {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta-secondary:hover {
+    transform: scale(1.05);
+  }
+  .hero-cta-secondary:active {
+    transform: scale(1.02);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-background,
+  .hero-background.hero-load-in {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  .hero-background.hero-load-in .hero-orb {
+    animation: none;
+  }
+  .hero-background.hero-load-in .court-line-accent {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+/* ============================================
+   Legacy hero zoom (kept for reference; not used by new hero)
+   ============================================ */
+
+/* 
+  Subtle zoom animation for hero background
+  - Duration: 20s for very slow, calming SaaS-style effect
+  - Scale: 1 to 1.02 (2% zoom) - very subtle, premium feel
+  - Easing: ease-in-out for smooth transitions
+  - Disabled on mobile for performance and battery conservation
+*/
+@keyframes heroZoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.02);
+  }
+}
+
+/* 
+  Responsive background positioning
+  - Mobile: Right-aligned to shift background to the most right
+  - Desktop: Center alignment for balanced composition
+*/
+.hero-bg-position {
+  object-position: 75% center; /* Mobile: slightly right, not at the most right */
+}
+
+@media (min-width: 768px) {
+  .hero-bg-position {
+    object-position: center; /* Desktop: centered for balanced look */
+  }
+
+  /* Apply zoom animation only on desktop */
+  .hero-zoom {
+    animation: heroZoom 20s ease-in-out infinite alternate;
+  }
+}
+
+/* Ensure image remains sharp on high-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hero-zoom {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 767px) {
+  /* Better mobile viewport handling */
+  section {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Better touch targets for mobile buttons */
+  button,
+  a {
+    min-height: 44px; /* iOS recommended touch target size */
+  }
+}
+
+/* Extra small breakpoint support (320px+) */
+@media (min-width: 375px) {
+  .xs\:px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .xs\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .xs\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .xs\:py-3\.5 {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+  }
+  .xs\:mb-3 {
+    margin-bottom: 0.75rem;
+  }
+  .xs\:mb-4 {
+    margin-bottom: 1rem;
+  }
+  .xs\:mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  .xs\:mb-8 {
+    margin-bottom: 2rem;
+  }
+  .xs\:gap-3 {
+    gap: 0.75rem;
+  }
+  .xs\:gap-2\.5 {
+    gap: 0.625rem;
+  }
+  .xs\:gap-6 {
+    gap: 1.5rem;
+  }
+  .xs\:text-4xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  .xs\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  .xs\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .xs\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .xs\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .xs\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  .xs\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  .xs\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  .xs\:p-6 {
+    padding: 1.5rem;
+  }
+  .xs\:p-5 {
+    padding: 1.25rem;
+  }
+  .xs\:pt-4 {
+    padding-top: 1rem;
+  }
+  .xs\:pt-3 {
+    padding-top: 0.75rem;
+  }
+  .xs\:py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  .xs\:py-6 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .xs\:w-14 {
+    width: 3.5rem;
+  }
+  .xs\:h-14 {
+    height: 3.5rem;
+  }
+  .xs\:h-7 {
+    height: 1.75rem;
+  }
+  .xs\:w-7 {
+    width: 1.75rem;
+  }
+  .xs\:h-4 {
+    height: 1rem;
+  }
+  .xs\:w-4 {
+    width: 1rem;
+  }
+  .xs\:mr-2\.5 {
+    margin-right: 0.625rem;
+  }
+  .xs\:mb-2 {
+    margin-bottom: 0.5rem;
+  }
+  .xs\:mb-3 {
+    margin-bottom: 0.75rem;
+  }
+  .xs\:gap-2\.5 {
+    gap: 0.625rem;
+  }
+  .xs\:mt-6 {
+    margin-top: 1.5rem;
+  }
+  .xs\:pt-6 {
+    padding-top: 1.5rem;
+  }
+}
+
+/* Fade-in animation for sections */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+.fade-in-section.fade-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Touch manipulation for better mobile performance */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent text selection on buttons for better mobile UX */
+button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #d4a817;
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar for horizontal scrolling tabs */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Floating particles animation for coming soon pages */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-40px) translateX(-10px);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-20px) translateX(5px);
+    opacity: 0.6;
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* ============================================
+   GLOBAL ANIMATION SYSTEM
+   Premium, subtle animations for SaaS/sports-tech
+   ============================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Global transition system - Consistent timing */
+:root {
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global button transitions */
+button,
+a[role="button"] {
+  transition:
+    transform var(--transition-base),
+    opacity var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+  will-change: transform;
+}
+
+/* Button hover micro-interactions - Desktop only */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+  button:not(:disabled):hover,
+  a[role="button"]:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  button:not(:disabled):active,
+  a[role="button"]:active {
+    transform: translateY(0) scale(0.97);
+    transition-duration: 100ms;
+  }
+}
+
+/* Card transitions */
+[class*="Card"],
+.card {
+  transition:
+    transform var(--transition-base),
+    opacity var(--transition-base),
+    box-shadow var(--transition-base);
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [class*="Card"]:hover,
+  .card:hover {
+    transition-duration: var(--transition-slow);
+    transform: translateY(-2px);
+  }
+}
+
+/* Link transitions */
+a:not(button):not([role="button"]) {
+  transition:
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+/* Modal/Dialog transitions */
+[role="dialog"],
+[data-radix-dialog-content] {
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+}
+
+/* Dropdown transitions */
+[data-radix-dropdown-menu-content],
+[data-radix-select-content] {
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Hero section entrance animations (Desktop only) */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile: No animation - content visible immediately */
+.hero-entrance {
+  opacity: 1;
+}
+
+/* Desktop: Entrance animation - only apply on large screens */
+@media (min-width: 1024px) {
+  .hero-entrance {
+    animation: heroFadeUp 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+  }
+
+  .hero-entrance-delay-1 {
+    animation-delay: 100ms;
+  }
+
+  .hero-entrance-delay-2 {
+    animation-delay: 200ms;
+  }
+
+  .hero-entrance-delay-3 {
+    animation-delay: 300ms;
+  }
+}
+
+/* Scroll-based reveal animations */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Navbar scroll behavior */
+.navbar-scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition:
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+/* Disable animations on mobile for performance */
+@media (max-width: 1023px) {
+  .hero-entrance {
+    animation: none;
+    opacity: 1;
+  }
+
+  button:not(:disabled):hover,
+  a[role="button"]:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   Intro Overlay – modern, user-friendly
+   Logo on gradient → animate to navbar; skip option
+   ============================================ */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.intro-overlay-dark {
+  background: #0a0a0a;
+}
+
+/* Modern: soft gradient + subtle radial glow */
+.intro-overlay-modern {
+  background: radial-gradient(
+    ellipse 120% 80% at 50% 40%,
+    rgba(26, 22, 18, 0.98) 0%,
+    #0a0a0a 50%,
+    #050505 100%
+  );
+}
+
+.intro-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.intro-logo-wrapper {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: auto;
+  z-index: 10000;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Gentle scale-in when logo appears (disabled when user prefers reduced motion) */
+.intro-logo-entrance {
+  animation: intro-logo-scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-logo-entrance {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes intro-logo-scale-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.intro-logo-large {
+  width: 280px;
+}
+
+.intro-logo-large .intro-logo-img {
+  width: 280px !important;
+  max-height: 120px;
+  filter: drop-shadow(0 4px 24px rgba(212, 168, 23, 0.12));
+}
+
+.intro-logo-img {
+  width: 180px !important;
+  height: auto !important;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+/* Skip / Enter button – minimal, high contrast, touch-friendly */
+.intro-skip-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10001;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.intro-skip-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(212, 168, 23, 0.4);
+}
+
+.intro-skip-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #0a0a0a,
+    0 0 0 4px rgba(212, 168, 23, 0.5);
+}
+
+.intro-skip-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 639px) {
+  .intro-logo-wrapper {
+    width: 140px;
+  }
+  .intro-logo-large {
+    width: 200px;
+  }
+  .intro-logo-large .intro-logo-img {
+    width: 200px !important;
+    max-height: 80px;
+  }
+  .intro-logo-img {
+    width: 140px !important;
+    max-height: 56px;
+  }
+  .intro-skip-btn {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   Login Page - Premium minimal
+   ============================================ */
+
+.login-page {
+  isolation: isolate;
+}
+
+.login-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.login-card:focus-within {
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 0 0 3px rgba(212, 168, 23, 0.08);
+}
+
+.login-input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+/* ============================================
+   Login Page - Canva wireframe layout
+   Two sections: dark logo hero + white form
+   ============================================ */
+
+.login-canva {
+  background: #0a0a0a;
+}
+
+.login-hero {
+  background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 50%, #141414 100%);
+  position: relative;
+}
+
+.login-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(255, 255, 255, 0.02) 8px,
+    rgba(255, 255, 255, 0.02) 16px
+  );
+  pointer-events: none;
+}
+
+.login-form-section {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Login page: same color transitions on hover as signup */
+.login-canva-input {
+  transition:
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    outline-color 0.35s ease;
+}
+
+.login-canva-input:hover {
+  background-color: rgba(212, 168, 23, 0.08) !important;
+  box-shadow: 0 0 0 2px rgba(212, 168, 23, 0.2);
+}
+
+.login-canva-btn {
+  transition:
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.25s ease,
+    color 0.35s ease;
+}
+
+.login-canva-btn:hover:not(:disabled) {
+  background-color: #2d2d2d;
+  box-shadow:
+    0 8px 24px rgba(212, 168, 23, 0.2),
+    0 0 0 1px rgba(212, 168, 23, 0.15);
+}
+
+.login-canva-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.login-canva-link {
+  transition:
+    color 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.login-canva-link:hover {
+  color: #d4a817;
+  opacity: 1;
+}
+
+/* Register page - same top background as login, narrow top bar */
+.register-canva {
+  background: #0a0a0a;
+}
+
+.register-hero {
+  background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 50%, #141414 100%);
+  position: relative;
+}
+
+.register-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(255, 255, 255, 0.02) 8px,
+    rgba(255, 255, 255, 0.02) 16px
+  );
+  pointer-events: none;
+}
+
+/* Signup header collapses when user scrolls down in the form */
+.register-hero-collapsible {
+  overflow: hidden;
+}
+
+.register-hero-collapsed {
+  min-height: 0 !important;
+  height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.register-form-section {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Signup page: richer color transitions on hover */
+.register-canva-input {
+  transition:
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    outline-color 0.35s ease;
+}
+
+.register-canva-input:hover {
+  background-color: rgba(212, 168, 23, 0.08) !important;
+  box-shadow: 0 0 0 2px rgba(212, 168, 23, 0.2);
+}
+
+.register-canva-btn {
+  transition:
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.25s ease,
+    color 0.35s ease;
+}
+
+.register-canva-btn:hover:not(:disabled) {
+  background-color: #2d2d2d;
+  box-shadow:
+    0 8px 24px rgba(212, 168, 23, 0.2),
+    0 0 0 1px rgba(212, 168, 23, 0.15);
+}
+
+.register-canva-link {
+  transition:
+    color 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.register-canva-link:hover {
+  color: #d4a817;
+  opacity: 1;
+}
+
+.register-canva-option {
+  transition:
+    background-color 0.35s ease,
+    box-shadow 0.2s ease;
+}
+
+.register-canva-option:hover {
+  background-color: rgba(212, 168, 23, 0.1);
+  box-shadow: 0 0 0 1px rgba(212, 168, 23, 0.15);
+}
+
+/* Forgot / Reset password page - reuses login-canva-* for consistency */
+.forgot-password-tab {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.2s ease;
+}
+.forgot-password-tab:hover {
+  color: #1a1a1a;
+}
+
+/* Point System page: force gold/yellow focus and hover (no blue) */
+.point-system-page input {
+  outline: none;
+}
+.point-system-page input:hover {
+  border-color: rgba(212, 168, 23, 0.5);
+  box-shadow: 0 0 0 1px rgba(212, 168, 23, 0.2);
+}
+.point-system-page input:focus {
+  border-color: #d4a817;
+  box-shadow:
+    0 0 0 2px rgba(212, 168, 23, 0.25),
+    0 0 0 4px rgba(212, 168, 23, 0.15);
+  outline: none;
+}
+.point-system-page input:focus-visible {
+  border-color: #d4a817;
+  box-shadow:
+    0 0 0 2px rgba(212, 168, 23, 0.25),
+    0 0 0 4px rgba(212, 168, 23, 0.15);
+  outline: none;
+}

@@ -1,0 +1,699 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  name                  String?
+  phone                 String?
+  password              String
+  role                  String                 @default("user")
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  adminType             String? // "super_admin", "club_owner", "owner_partner", "moderator", "timing_organizer", "tournament_organizer", "coach_admin"
+  userType              String? // "club_admin" (for regular users with special booking privileges)
+  isApproved            Boolean                @default(true)
+  bookings              Booking[]
+  cancelledBookings     Booking[]              @relation("CancelledBookings")
+  recordedPayments      BookingPayment[]       @relation("RecordedPayments")
+  coachingSessions      CoachingSession[]
+  financialTransactions FinancialTransaction[] @relation("CreatedTransactions")
+  requestedTransactions FinancialTransaction[] @relation("RequestedTransactions")
+  approvedTransactions  FinancialTransaction[] @relation("ApprovedTransactions")
+  ownedLocations        Location[]
+  assignedLocations     LocationAssignment[]   @relation("AssignedModerator")
+  notifications         Notification[]
+  player                Player?
+  teams                 Team[]
+  fixedBookings         FixedBooking[]         @relation("FixedBookingUser")
+  createdFixedBookings  FixedBooking[]         @relation("FixedBookingCreator")
+
+  // Tournament Relations
+  organizerProfile         OrganizerProfile?
+  playerRegistrations      TournamentRegistration[] @relation("PlayerRegistrations")
+  partnerRegistrations     TournamentRegistration[] @relation("PartnerRegistrations")
+  partnerRequests          PartnerRequest[]         @relation("PartnerRequests")
+  receivedPartnerRequests  PartnerRequest[]         @relation("ReceivedPartnerRequests")
+  mediatedPartnerRequests  PartnerRequest[]         @relation("MediatedPartnerRequests")
+  approvedOrganizers       OrganizerProfile[]       @relation("ApprovedOrganizers")
+  clubApprovedTournaments  Tournament[]             @relation("ClubApprovedTournaments")
+  adminApprovedTournaments Tournament[]             @relation("AdminApprovedTournaments")
+  approvedRegistrations    TournamentRegistration[] @relation("ApprovedRegistrations")
+  rejectedRegistrations    TournamentRegistration[] @relation("RejectedRegistrations")
+  approvedPayments         Payment[]                @relation("ApprovedPayments")
+  rejectedPayments         Payment[]                @relation("RejectedPayments")
+  teamPlayer1              Team[]                   @relation("TeamPlayer1")
+  teamPlayer2              Team[]                   @relation("TeamPlayer2")
+}
+
+model Location {
+  id                    String                 @id @default(cuid())
+  name                  String
+  address               String
+  image                 String?
+  instagram             String?
+  facebook              String?
+  tiktok                String?
+  googleMapsUrl         String?
+  instapayPhone         String? // Fixed InstaPay receiving phone number for this location
+  cancellationHours     Int                    @default(4) // Hours before booking that cancellation is allowed
+  openingTime           String?                // Opening time (HH:MM, 24-hour format). Null = use system default.
+  closingTime           String?                // Closing time (HH:MM, 24-hour format). Supports overnight hours.
+  createdAt             DateTime               @default(now())
+  ownerId               String?
+  bookings              Booking[]
+  courts                Court[]
+  financialTransactions FinancialTransaction[]
+  owner                 User?                  @relation(fields: [ownerId], references: [id])
+  moderatorAssignments  LocationAssignment[]   @relation("AssignedLocation")
+  fixedBookings         FixedBooking[]
+  tournaments           Tournament[]
+  dailyFinancialProcessing DailyFinancialProcessing[]
+
+  @@index([ownerId])
+}
+
+model Court {
+  id                    String                 @id @default(cuid())
+  name                  String
+  type                  String
+  pricePerHour          Int
+  locationId            String
+  bookings              Booking[]
+  location              Location               @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  financialTransactions FinancialTransaction[]
+  fixedBookings         FixedBooking[]
+  matches               Match[]
+}
+
+/**
+ * BookingPayment
+ * Records payment details for bookings after play
+ * Supports multiple payment methods per booking (cash, visa, instapay)
+ * Created by Club Admin when recording payments
+ */
+model BookingPayment {
+  id              String   @id @default(cuid())
+  bookingId       String
+  method          String // "cash" | "visa" | "instapay" | "online" (future: Paymob)
+  amount          Int // Amount in EGP (smallest unit: piasters, stored as integer)
+  paymentReference String? // Reference for Visa transactions
+  payerName       String? // Name of person who sent InstaPay payment
+  payerPhone      String? // Phone number of person who sent InstaPay payment
+  recordedById    String // Club Admin who recorded this payment
+  recordedAt      DateTime @default(now())
+
+  // Relations
+  booking    Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  recordedBy User    @relation("RecordedPayments", fields: [recordedById], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([recordedById])
+  @@index([method])
+  @@index([recordedAt])
+}
+
+model Booking {
+  id                String           @id @default(cuid())
+  userId            String
+  locationId        String
+  courtId           String
+  date              DateTime
+  startTime         String
+  endTime           String
+  status            String           @default("pending")
+  totalPrice        Int
+  category          String           @default("regular") // regular, academy, tournament (club owner only)
+  cancelledByUserId String? // ID of user who cancelled (null if not cancelled or cancelled by booking owner)
+  paymentStatus     String           @default("PENDING") // PENDING | PARTIAL | PAID | CLOSED
+  paidAt            DateTime? // When payment was completed
+  createdAt         DateTime         @default(now())
+  court             Court            @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  location          Location         @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cancelledBy       User?            @relation("CancelledBookings", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
+  payment           Payment?
+  bookingPayments   BookingPayment[] // Multiple payment methods per booking
+
+  @@index([locationId, date, startTime])
+  @@unique([courtId, date, startTime])
+  @@index([userId])
+  @@index([category])
+  @@index([paymentStatus])
+  @@index([locationId, paymentStatus])
+}
+
+model Coach {
+  id             String            @id @default(cuid())
+  name           String
+  specialization String
+  experience     String
+  bio            String?
+  pricePerHour   Int
+  image          String?
+  availability   String?
+  rating         Float?
+  achievements   String[]
+  sessions       CoachingSession[]
+}
+
+model CoachingSession {
+  id         String   @id @default(cuid())
+  userId     String
+  coachId    String
+  date       DateTime
+  startTime  String
+  endTime    String
+  status     String   @default("pending")
+  totalPrice Int
+  createdAt  DateTime @default(now())
+  coach      Coach    @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment    Payment?
+
+  @@index([userId])
+  @@index([coachId])
+}
+
+/**
+ * Tournament
+ * Complete tournament model with multi-level approval workflow
+ * Status: DRAFT | WAITING_FOR_CLUB_APPROVAL | WAITING_FOR_ADMIN_APPROVAL |
+ * REGISTRATION_OPEN | REGISTRATION_CLOSED | ONGOING | FINISHED
+ */
+model Tournament {
+  id          String  @id @default(cuid())
+  name        String
+  organizerId String // Tournament Organizer
+  locationId  String? // Selected location (requires club approval)
+
+  // Tournament Details
+  tournamentSystem String // "groups", "league", "knockout"
+  tournamentLevel  String // Linked to RankCategory name
+  rankCategoryId   String? // Reference to RankCategory
+
+  // Dates
+  registrationStartDate DateTime
+  registrationDeadline  DateTime
+  startDate             DateTime
+  endDate               DateTime?
+
+  // Pricing & Prizes
+  registrationPrice Int
+  prizes            String // JSON or text description
+  maxTeams          Int? // ADMIN/ORGANIZER ONLY - hidden from public
+  maxTeamPoints     Int? // Maximum combined points for both players in a team
+
+  // Terms & Conditions
+  termsAndConditions String // Mandatory acceptance
+
+  // Status Lifecycle
+  status String @default("DRAFT")
+
+  // Approval Tracking
+  clubApprovedById    String? // Club Owner who approved
+  clubApprovedAt      DateTime?
+  clubRejectedAt      DateTime?
+  clubRejectionReason String?
+
+  adminApprovedById    String? // Super Admin who approved
+  adminApprovedAt      DateTime?
+  adminRejectedAt      DateTime?
+  adminRejectionReason String?
+
+  // Metadata
+  description   String?
+  internalNotes String? // ORGANIZER/ADMIN ONLY
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  organizer       OrganizerProfile         @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  location        Location?                @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  rankCategory    RankCategory?            @relation(fields: [rankCategoryId], references: [id], onDelete: SetNull)
+  clubApprovedBy  User?                    @relation("ClubApprovedTournaments", fields: [clubApprovedById], references: [id])
+  adminApprovedBy User?                    @relation("AdminApprovedTournaments", fields: [adminApprovedById], references: [id])
+  registrations   TournamentRegistration[]
+  teams           Team[]
+  matches         Match[]
+  partnerRequests PartnerRequest[]
+
+  @@index([organizerId])
+  @@index([locationId])
+  @@index([status])
+  @@index([rankCategoryId])
+  @@index([registrationStartDate, registrationDeadline])
+}
+
+/**
+ * Team
+ * Tournament team with two players
+ */
+model Team {
+  id           String @id @default(cuid())
+  tournamentId String
+  player1Id    String // User ID of player 1
+  player2Id    String // User ID of player 2
+
+  // Team Stats
+  totalPoints Int     @default(0)
+  seed        Int?
+  qualified   Boolean @default(false)
+
+  // Registration Link (one-to-one with TournamentRegistration)
+  registrationId String? @unique // Link to TournamentRegistration (the main registration that created this team)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tournament      Tournament              @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player1         User                    @relation("TeamPlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
+  player2         User                    @relation("TeamPlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
+  registration    TournamentRegistration?
+  matchesAsTeam1  Match[]                 @relation("Team1Matches")
+  matchesAsTeam2  Match[]                 @relation("Team2Matches")
+  matchesAsWinner Match[]                 @relation("MatchWinner")
+  User            User?                   @relation(fields: [userId], references: [id])
+  userId          String?
+
+  @@unique([tournamentId, player1Id, player2Id]) // Prevent duplicate teams
+  @@index([tournamentId])
+  @@index([player1Id])
+  @@index([player2Id])
+}
+
+/**
+ * Match
+ * Tournament match with court and time assignment
+ */
+model Match {
+  id           String  @id @default(cuid())
+  tournamentId String
+  team1Id      String?
+  team2Id      String?
+  winnerId     String?
+
+  // Match Details
+  round     String // "groups", "quarterfinals", "semifinals", "final"
+  courtId   String? // Assigned court
+  date      DateTime? // Match date
+  startTime String? // Match start time
+  endTime   String? // Match end time
+
+  // Status
+  status String @default("scheduled")
+  // scheduled | in_progress | completed | cancelled
+
+  score String?
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  team1      Team?      @relation("Team1Matches", fields: [team1Id], references: [id])
+  team2      Team?      @relation("Team2Matches", fields: [team2Id], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  winner     Team?      @relation("MatchWinner", fields: [winnerId], references: [id])
+  court      Court?     @relation(fields: [courtId], references: [id], onDelete: SetNull)
+
+  @@index([tournamentId])
+  @@index([round])
+  @@index([team1Id])
+  @@index([team2Id])
+  @@index([courtId])
+  @@index([date])
+}
+
+/**
+ * Payment
+ * Payment for bookings, coaching sessions, or tournament registrations
+ */
+model Payment {
+  id             String  @id @default(cuid())
+  bookingId      String? @unique
+  sessionId      String? @unique
+  registrationId String? @unique // Tournament registration
+
+  amount           Int
+  status           String // pending | approved | rejected
+  method           String // instapay | cash | payment_link | stripe
+  stripeId         String?
+  paymentProof     String? // URL or reference for manual payments
+  paymentReference String? // Reference number for InstaPay, etc.
+
+  // Approval
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  booking         Booking?                @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  coachingSession CoachingSession?        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  registration    TournamentRegistration?
+  approvedBy      User?                   @relation("ApprovedPayments", fields: [approvedById], references: [id])
+  rejectedBy      User?                   @relation("RejectedPayments", fields: [rejectedById], references: [id])
+
+  @@index([status])
+  @@index([method])
+  @@index([registrationId])
+}
+
+model Player {
+  id       String  @id @default(cuid())
+  name     String // CRITICAL FIX: Removed @unique - allows same name for different users
+  points   Int     @default(0)
+  rank     Int
+  category String?
+  location String
+  wins     Int     @default(0)
+  losses   Int     @default(0)
+  userId   String? @unique
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([points])
+  @@index([category])
+  @@index([name]) // Add index for search performance (non-unique)
+  @@index([location]) // Add index for location filtering
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  metadata  Json?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+model FinancialTransaction {
+  id              String    @id @default(cuid())
+  locationId      String
+  courtId         String?
+  amount          Int
+  type            String
+  source          String
+  description     String?
+  transactionDate DateTime  @default(now())
+  createdById     String
+  status          String    @default("approved") // pending, approved, rejected
+  requestedById   String? // ID of club admin who requested (if pending/requested)
+  approvedById    String? // ID of club owner who approved/rejected
+  approvedAt      DateTime? // When it was approved/rejected
+  createdAt       DateTime  @default(now())
+  court           Court?    @relation(fields: [courtId], references: [id])
+  createdBy       User      @relation("CreatedTransactions", fields: [createdById], references: [id], onDelete: Cascade)
+  requestedBy     User?     @relation("RequestedTransactions", fields: [requestedById], references: [id], onDelete: SetNull)
+  approvedBy      User?     @relation("ApprovedTransactions", fields: [approvedById], references: [id], onDelete: SetNull)
+  location        Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@index([locationId, transactionDate])
+  @@index([courtId])
+  @@index([type])
+  @@index([source])
+  @@index([createdById])
+  @@index([status])
+  @@index([requestedById])
+}
+
+/**
+ * DailyFinancialProcessing
+ * Tracks daily financial processing per location to prevent duplicate processing
+ * Created automatically by cron job after each operational day ends
+ */
+model DailyFinancialProcessing {
+  id              String   @id @default(cuid())
+  locationId      String
+  operationalDate DateTime // The start of the operational day (00:00 UTC of opening date)
+  processedAt     DateTime @default(now())
+  totalRevenue    Int      @default(0) // Total revenue for the day
+  totalCash       Int      @default(0) // Total cash payments
+  totalVisa       Int      @default(0) // Total visa payments
+  totalInstapay   Int      @default(0) // Total instapay payments
+  totalOnline     Int      @default(0) // Total online payments
+
+  // Relations
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, operationalDate]) // Prevent duplicate processing
+  @@index([locationId])
+  @@index([operationalDate])
+  @@index([processedAt])
+}
+
+/**
+ * LocationAssignment
+ * Allows moderators to be assigned to specific locations by Super Admin
+ * Moderators can only access assigned locations (not all locations)
+ */
+model LocationAssignment {
+  id           String   @id @default(cuid())
+  userId       String // Moderator's user ID
+  locationId   String // Assigned location ID
+  assignedAt   DateTime @default(now())
+  assignedById String? // Super Admin who assigned (optional, for audit)
+  user         User     @relation("AssignedModerator", fields: [userId], references: [id], onDelete: Cascade)
+  location     Location @relation("AssignedLocation", fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, locationId])
+  @@index([userId])
+  @@index([locationId])
+}
+
+/**
+ * OrganizerProfile
+ * Tournament Organizer profile with approval status
+ */
+model OrganizerProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  isApproved      Boolean   @default(false)
+  approvedById    String? // Super Admin who approved
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy     User?          @relation("ApprovedOrganizers", fields: [approvedById], references: [id])
+  rankCategories RankCategory[]
+  tournaments    Tournament[]
+
+  @@index([userId])
+  @@index([isApproved])
+}
+
+/**
+ * RankCategory
+ * Organizer-defined rank categories with point ranges
+ */
+model RankCategory {
+  id          String   @id @default(cuid())
+  organizerId String // Organizer who created this category
+  name        String // e.g., "Beginner", "Intermediate", "Advanced"
+  minPoints   Int // Minimum points for this category
+  maxPoints   Int // Maximum points for this category
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organizer   OrganizerProfile @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  tournaments Tournament[]
+
+  @@unique([organizerId, name]) // Each organizer can have unique category names
+  @@index([organizerId])
+  @@index([minPoints, maxPoints])
+}
+
+/**
+ * TournamentRegistration
+ * Player registration for tournaments with eligibility checks and payment tracking
+ */
+model TournamentRegistration {
+  id           String  @id @default(cuid())
+  tournamentId String
+  playerId     String // User ID of registering player
+  partnerId    String? // Partner's User ID (if has partner)
+
+  // Eligibility
+  playerPoints         Int // Points at time of registration
+  playerCategory       String? // Category at time of registration
+  isEligible           Boolean   @default(false)
+  eligibilityCheckedAt DateTime?
+
+  // Registration Status
+  status String @default("PENDING")
+  // PENDING | APPROVED | REJECTED
+
+  // Partner Status
+  needsPartner     Boolean @default(false)
+  partnerRequestId String? @unique // If player needs a partner
+
+  // Team Link (one-to-one)
+  teamId String? @unique // Final team ID (after partner confirmation)
+
+  // Payment
+  paymentId         String?   @unique
+  paymentMethod     String? // "instapay", "cash", "payment_link"
+  paymentProof      String? // URL or reference
+  paymentApprovedAt DateTime?
+
+  // Approval Tracking
+  approvedById    String? // Organizer who approved
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+
+  // Terms Acceptance
+  termsAccepted   Boolean   @default(false)
+  termsAcceptedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tournament     Tournament      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player         User            @relation("PlayerRegistrations", fields: [playerId], references: [id], onDelete: Cascade)
+  partner        User?           @relation("PartnerRegistrations", fields: [partnerId], references: [id], onDelete: SetNull)
+  team           Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  partnerRequest PartnerRequest? @relation(fields: [partnerRequestId], references: [id], onDelete: SetNull)
+  payment        Payment?        @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  approvedBy     User?           @relation("ApprovedRegistrations", fields: [approvedById], references: [id])
+  rejectedBy     User?           @relation("RejectedRegistrations", fields: [rejectedById], references: [id])
+
+  @@unique([tournamentId, playerId]) // Prevent duplicate registrations
+  @@unique([tournamentId, partnerId]) // Prevent partner from registering twice
+  @@index([tournamentId])
+  @@index([playerId])
+  @@index([status])
+  @@index([teamId])
+}
+
+/**
+ * PartnerRequest
+ * Partner matching system for players without partners
+ */
+model PartnerRequest {
+  id                 String  @id @default(cuid())
+  tournamentId       String
+  requesterId        String // Player requesting a partner
+  requestedPartnerId String? // Specific partner requested (optional)
+
+  // Status
+  status String @default("PENDING")
+  // PENDING | ACCEPTED | REJECTED | CANCELLED
+
+  // Auto-matching
+  isAutoMatch Boolean @default(false) // If system matched eligible players
+
+  // Confirmation
+  acceptedAt  DateTime?
+  rejectedAt  DateTime?
+  cancelledAt DateTime?
+
+  // Organizer Mediation
+  organizerMediated Boolean @default(false)
+  organizerId       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tournament       Tournament              @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  requester        User                    @relation("PartnerRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  requestedPartner User?                   @relation("ReceivedPartnerRequests", fields: [requestedPartnerId], references: [id], onDelete: SetNull)
+  organizer        User?                   @relation("MediatedPartnerRequests", fields: [organizerId], references: [id])
+  registration     TournamentRegistration?
+
+  @@unique([tournamentId, requesterId]) // One active request per tournament
+  @@index([tournamentId])
+  @@index([requesterId])
+  @@index([status])
+}
+
+/**
+ * FixedBooking
+ * Recurring weekly bookings that automatically block time slots
+ * Created by Club Owners or Moderators for themselves or other users
+ * IMPORTANT: Fixed bookings do NOT create individual Booking records.
+ * They block slots in real-time when checking availability.
+ * Design Rules:
+ * - One fixed booking per court per dayOfWeek per time slot
+ * - Status: ACTIVE (blocks slots), PAUSED (doesn't block), CANCELED (soft delete)
+ * - Automatically blocks slots from startDate to endDate (or infinite if endDate is null)
+ * - Normal bookings must check against fixed bookings before confirmation
+ */
+model FixedBooking {
+  id          String    @id @default(cuid())
+  courtId     String // Court this fixed booking is for
+  locationId  String // Location (for filtering and permissions)
+  userId      String? // User this booking is for (null if for owner/moderator themselves)
+  createdById String // Club Owner or Moderator who created this
+  /// Booking category for this fixed slot:
+  /// "regular" | "academy" | "tournament"
+  category    String    @default("regular")
+  dayOfWeek   Int // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime   String // Format: "HH:MM" (e.g., "10:00")
+  endTime     String // Format: "HH:MM" (e.g., "12:00")
+  startDate   DateTime // When this fixed booking starts blocking slots
+  endDate     DateTime? // When this fixed booking stops blocking (null = infinite)
+  status      String    @default("ACTIVE") // ACTIVE | PAUSED | CANCELED
+  notes       String? // Optional notes about this fixed booking
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  court     Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user      User?    @relation("FixedBookingUser", fields: [userId], references: [id], onDelete: SetNull)
+  createdBy User     @relation("FixedBookingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  // Note: No unique constraint - overlaps are prevented by application logic
+  // Multiple fixed bookings can exist for same court/day/time if they have different date ranges
+
+  // Indexes for performance
+  @@index([courtId, dayOfWeek, status]) // Fast lookup for conflict checks
+  @@index([locationId, status]) // Filter by location
+  @@index([userId, status]) // Filter by user
+  @@index([createdById]) // Filter by creator
+  @@index([category])
+  @@index([status, startDate, endDate]) // Active bookings in date range
+}
+
+/**
+ * PasswordResetOtp
+ * Temporary OTP for password reset via mobile. Single-use, short-lived.
+ * Rate limiting is enforced in application logic.
+ */
+model PasswordResetOtp {
+  id        String   @id @default(cuid())
+  phone     String   // Normalized (digits only) for lookup
+  codeHash  String   // Hashed 6-digit code (never store plain)
+  userId    String   // User this OTP belongs to
+  expiresAt DateTime
+  attempts  Int      @default(0) // Verification attempts (max 5)
+  usedAt    DateTime? // When OTP was successfully used (single-use)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@index([userId])
+  @@index([expiresAt])
+}

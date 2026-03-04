@@ -1,0 +1,101 @@
+{
+  "projectName": "padel-website",
+  "description": "A comprehensive web application for managing padel court reservations, player rankings, tournaments, and coaching sessions. Built specifically for the Port Said padel community with role-based admin access, automated player matching, and a complete point system integration.",
+  "technologies": [
+    "Next.js 15.5.3",
+    "React 19.1.0",
+    "TypeScript 5",
+    "Prisma 6.18.0",
+    "PostgreSQL (Supabase)",
+    "NextAuth.js 4.24.11",
+    "Tailwind CSS 4",
+    "shadcn/ui",
+    "Framer Motion 12.23.13",
+    "React Hook Form 7.65.0",
+    "Zod 4.1.12",
+    "bcryptjs 3.0.2",
+    "date-fns 4.1.0",
+    "Axios 1.12.2",
+    "Radix UI Components",
+    "Lucide React Icons",
+    "Sonner (Toast Notifications)"
+  ],
+  "keyFeatures": [
+    "Court Booking System - Real-time availability checking, multi-location support, and booking management with conflict detection",
+    "Player Ranking & Point System - Integration with Port Said point system (164 players), fuzzy name matching, automatic player recognition with notifications",
+    "Tournament Management - Complete tournament lifecycle management, team registration, bracket generation, match tracking, and results",
+    "Role-Based Admin System - Super admin, club owners, timing organizers, tournament organizers, and coach admins with approval workflow",
+    "Coaching Sessions - Professional coach profiles, session booking, availability management, and payment integration",
+    "Notification System - In-app notifications for player matching, booking confirmations, and admin approvals",
+    "Multi-language Support - English and Arabic translations throughout the application",
+    "Responsive Design - Fully mobile-optimized with modern UI/UX"
+  ],
+  "category": "Web Application",
+  "githubUrl": "https://github.com/Omarelnoamy/padel-website.git",
+  "liveDemoUrl": null,
+  "screenshots": [
+    {
+      "name": "Home/Landing Page",
+      "description": "Hero section with call-to-action buttons, feature highlights (easy booking, expert coaching, tournaments), and responsive navigation bar with notification bell",
+      "path": "src/app/page.tsx"
+    },
+    {
+      "name": "Booking Page",
+      "description": "Interactive court booking interface with date picker, time slot selection, location/court selection, availability indicators, and booking summary with pricing",
+      "path": "src/app/booking/page.tsx"
+    },
+    {
+      "name": "Super Admin Dashboard",
+      "description": "Administrative dashboard showing app statistics (total users, bookings, locations, courts), pending admin approval requests, and links to player management",
+      "path": "src/app/admin/super-admin/page.tsx"
+    },
+    {
+      "name": "Player Management",
+      "description": "Admin interface for managing player records, creating new players, viewing rankings, and handling player-point system integration",
+      "path": "src/app/admin/players/page.tsx"
+    },
+    {
+      "name": "Tournaments Page",
+      "description": "Tournament listing with registration options, tournament details, highlights, and management interface for tournament organizers",
+      "path": "src/app/tournaments/page.tsx"
+    },
+    {
+      "name": "Point System/Rankings",
+      "description": "Player rankings display with 164 players from Port Said point system, categorized by points (⚫️, 🟡, 🟣, ⚪️, 🔵), search functionality, and filtering",
+      "path": "src/app/point-system/page.tsx"
+    }
+  ],
+  "databaseModels": [
+    "User (with roles: player, admin, super_admin, club_owner, timing_organizer, tournament_organizer, coach_admin)",
+    "Location",
+    "Court",
+    "Booking",
+    "Coach",
+    "CoachingSession",
+    "Tournament",
+    "Team",
+    "Match",
+    "Payment",
+    "Player (linked to User, with points and ranking)",
+    "Notification"
+  ],
+  "apiEndpoints": [
+    "/api/auth/[...nextauth] - Authentication (login, session)",
+    "/api/register - User registration with role selection",
+    "/api/locations - GET/POST locations (admin-protected)",
+    "/api/courts - GET/POST courts",
+    "/api/bookings - GET/POST bookings with conflict checking",
+    "/api/availability - Court availability checking",
+    "/api/coaches - GET coaches",
+    "/api/tournaments - GET tournaments",
+    "/api/players - GET/POST players with fuzzy matching",
+    "/api/players/check-match - Player name matching against point system",
+    "/api/players/confirm - Player match confirmation",
+    "/api/notifications - GET notifications, mark as read",
+    "/api/admin/pending - GET pending admin approvals",
+    "/api/admin/approve - POST approve/reject admin requests",
+    "/api/admin/stats - GET application statistics"
+  ],
+  "currentStatus": "Development - Database connection issues being resolved, core features implemented",
+  "deployment": "Not deployed (configured for Vercel)"
+}
